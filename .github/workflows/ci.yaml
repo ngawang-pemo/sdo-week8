@@ -80,6 +80,53 @@ jobs:
 
       # TASK 1.2: Add a step to run and verify the container.
 
+      # ========================================================
+      # TASK 1.3 — KUBERNETES: FOLLOW THE EVIDENCE
+      # ========================================================
+      # The Docker container works. Can Kubernetes run it too?
+      #
+      # Follow these steps in order:
+      #   1. Start a temporary Minikube cluster.
+      #   2. Load the built Docker image into Minikube.
+      #   3. Apply the Kubernetes Job manifest.
+      #   4. Wait for the Job to complete.
+      #   5. Read the Job logs and verify the output.
+      #   6. Collect diagnostics if any step fails.
+      #
+      # The first run may fail. Use the Kubernetes evidence
+      # to identify the problem before changing the manifest.
+      #
+      # Guided instructions: docs/task1-3.md
+      # ========================================================
+
+      - name: Start Minikube
+        uses: medyagh/setup-minikube@latest
+
+      - name: Load image into Minikube
+        run: minikube image load sdo-expo:1.0
+
+      - name: Create Kubernetes Job
+        run: kubectl apply -f expo/Job.yaml
+
+      - name: Wait for Job completion
+        run: kubectl wait --for=condition=complete --timeout=120s job/sdo-expo-job
+
+      - name: Verify Job output logs
+        run: |
+          output=$(kubectl logs job/sdo-expo-job)
+          echo "Job logs: $output"
+          test "$output" = "2 ^ 10 = 1024"
+
+      - name: Kubernetes diagnostics
+        if: failure()
+        run: |
+          kubectl get jobs,pods || true
+          kubectl describe job sdo-expo-job || true
+          kubectl describe pods -l job-name=sdo-expo-job || true
+          kubectl logs job/sdo-expo-job --all-containers=true || true
+
+      # TASK 1.3: Add your Kubernetes steps below.
+
   # ============================================================
   # TASK 2 — WEBSITE INVESTIGATION
   # Independent job, same workflow; both investigations run on push.
