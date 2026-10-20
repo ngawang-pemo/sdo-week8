@@ -56,8 +56,7 @@ jobs:
   # ============================================================
 
   task1-docker-build:
-    # TASK 1.2: Add the required job dependency here.
-
+    needs: task1-test
     runs-on: ubuntu-latest
 
     steps:
@@ -69,32 +68,17 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
-          context: ./expo # Do not change it to sdo-expo its the folder name :D
+          context: ./expo
           load: true
           tags: sdo-expo:1.0
 
+      - name: Run container test
+        run: |
+          output=$(docker run --rm sdo-expo:1.0 2 10)
+          echo "Container output: $output"
+          test "$output" = "2 ^ 10 = 1024"
+
       # TASK 1.2: Add a step to run and verify the container.
-
-      # ========================================================
-      # TASK 1.3 — KUBERNETES: FOLLOW THE EVIDENCE
-      # ========================================================
-      # The Docker container works. Can Kubernetes run it too?
-      #
-      # Follow these steps in order:
-      #   1. Start a temporary Minikube cluster.
-      #   2. Load the built Docker image into Minikube.
-      #   3. Apply the Kubernetes Job manifest.
-      #   4. Wait for the Job to complete.
-      #   5. Read the Job logs and verify the output.
-      #   6. Collect diagnostics if any step fails.
-      #
-      # The first run may fail. Use the Kubernetes evidence
-      # to identify the problem before changing the manifest.
-      #
-      # Guided instructions: docs/task1-3.md
-      # ========================================================
-
-      # TASK 1.3: Add your Kubernetes steps below.
 
   # ============================================================
   # TASK 2 — WEBSITE INVESTIGATION

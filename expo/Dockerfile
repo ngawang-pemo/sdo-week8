@@ -11,4 +11,4 @@ FROM scratch
 
 COPY --from=build /app/sdo-expo /sdo-expo
 
-ENTRYPOINT ["/app/sdo-expo"]
+ENTRYPOINT ["/sdo-expo"]
